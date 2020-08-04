@@ -7,6 +7,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET", "randomstring123")
 messages = []
 
+def delete():
+    del add_message
 
 def add_message(username, message):
     """Add messages to the `messages` list"""
@@ -30,10 +32,14 @@ def index():
 def user(username):
     """Add and display chat messages"""
     if request.method == "POST":
-        username = session["username"]
-        message = request.form["message"]
-        add_message(username, message)
-        return redirect(url_for("user", username=session["username"]))
+        if request.form.get("clear"):
+            messages.clear()
+            return redirect(url_for("user", username=session["username"]))
+        elif request.form.get("chat"):
+            username = session["username"]
+            message = request.form["message"]
+            add_message(username, message)
+            return redirect(url_for("user", username=session["username"]))
 
     return render_template("chat.html", username=username,
                            chat_messages=messages)
